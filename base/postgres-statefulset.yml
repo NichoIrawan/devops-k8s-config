@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: postgres-statefulset
+  labels:
+    app: devops
+    component: postgres
+
+spec:
+  serviceName: "postgres-service"
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: devops
+      component: postgres
+
+  template:
+    metadata:
+      labels:
+        app: devops
+        component: postgres
+
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:latest
+
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: postgres
+              containerPort: 5432
+
+          envFrom:
+            - configMapRef:
+                name: devops-config
+            - secretRef:
+                name: devops-secret
+
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

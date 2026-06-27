@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: devops-web
+
+  labels:
+    app: devops
+    component: web
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: devops
+      component: web
+
+  template:
+    metadata:
+      labels:
+        app: devops
+        component: web
+
+    spec:
+      containers:
+        - name: devops-web
+          image: bosssawit/devops:latest
+
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 80
+
+          envFrom:
+            - configMapRef:
+                name: devops-config
+            - secretRef:
+                name: devops-secret
